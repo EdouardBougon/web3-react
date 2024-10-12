@@ -86,16 +86,21 @@ export class MetaMaskSDK extends Connector {
    * Indicates whether the user is connected to the MetaMaskSDK.
    */
   private async isConnected() {
+    console.log('isConnected')
     try {
       if (this.provider?.isConnected?.() === true) {
+        console.log('isConnected', 'isConnected', true)
         if (this.sdk?.isExtensionActive() === true) {
+          console.log('isConnected', 'isExtensionActive', true)
           const accounts = ((await this.provider?.request({ method: 'eth_accounts' })) ?? []) as string[]
+          console.log('isConnected', 'accounts', accounts.length)
           return accounts.length > 0
         }
 
         return true
       }
-    } catch {
+    } catch (e) {
+      console.log('isConnected', 'catch', e)
       // ignore
     }
 
@@ -122,14 +127,18 @@ export class MetaMaskSDK extends Connector {
         await this.sdk.init()
       }
 
+      console.log('isomorphicInitialize', 'options', this.options.readonlyRPCMap)
+
       // biome-ignore lint/style/noNonNullAssertion: <explanation>
       this.provider = this.sdk.getProvider()!
 
       this.provider.on('connect', (({ chainId }: ProviderConnectInfo): void => {
+        console.log('isomorphicInitialize', 'onConnect')
         this.actions.update({ chainId: parseChainId(chainId) })
       }) as Listener)
 
       this.provider.on('disconnect', (async (error: ProviderRpcError): Promise<void> => {
+        console.log('isomorphicInitialize', 'onDisconnect')
         const originalError = ((error.data as any)?.originalError ?? error) as ProviderRpcError;
 
         // If MetaMask emits a `code: 1013` error, wait for reconnection before disconnecting
@@ -146,10 +155,12 @@ export class MetaMaskSDK extends Connector {
       }) as Listener)
 
       this.provider.on('chainChanged', ((chainId: string): void => {
+        console.log('isomorphicInitialize', 'onChainChanged')
         this.actions.update({ chainId: parseChainId(chainId) })
       }) as Listener)
 
       this.provider.on('accountsChanged', ((accounts: string[]): void => {
+        console.log('isomorphicInitialize', 'onAccountsChanged')
         if (accounts.length === 0) {
           // handle this edge case by disconnecting
           this.clearCache()
@@ -165,6 +176,7 @@ export class MetaMaskSDK extends Connector {
    * @inheritdoc Connector.connectEagerly
    */
   public async connectEagerly(): Promise<void> {
+    console.log('connectEagerly')
     const cancelActivation = this.actions.startActivation()
 
     try {
@@ -178,6 +190,7 @@ export class MetaMaskSDK extends Connector {
       const chainId = (await this.provider.request({ method: 'eth_chainId' })) as string
       this.actions.update({ chainId: parseChainId(chainId), accounts })
     } catch (error) {
+      console.debug('Could not connect eagerly', error)
       // we should be able to use `cancelActivation` here, but on mobile, metamask emits a 'connect'
       // event, meaning that chainId is updated, and cancelActivation doesn't work because an intermediary
       // update has occurred, so we reset state instead
@@ -195,6 +208,7 @@ export class MetaMaskSDK extends Connector {
    * specified parameters first, before being prompted to switch.
    */
   public async activate(desiredChainIdOrChainParameters?: number | AddEthereumChainParameter): Promise<void> {
+    console.log('activate')
     const [desiredChainId, desiredChain] =
       typeof desiredChainIdOrChainParameters === 'number'
         ? [desiredChainIdOrChainParameters, undefined]
@@ -202,23 +216,30 @@ export class MetaMaskSDK extends Connector {
 
     // If user already connected, only switch chain
     if (this.provider && await this.isConnected()) {
+      console.log('activate', 'isConnected', true)
       await this.switchChain(desiredChainId, desiredChain);
       return
     }
 
+    console.log('activate', 'isConnected', false)
     // If user not connected, connect eagerly
     // Then switch chain
     const cancelActivation = this.actions.startActivation()
     return this.isomorphicInitialize()
       .then(async () => {
+        console.log('activate', 'isConnected', 'isomorphicInitialize', 'then')
         if (!this.provider) throw new NoMetaMaskSDKError()
 
+        console.log('activate', 'isConnected', 'isomorphicInitialize', 'then', 'eth_requestAccounts')
         const accounts = (await this.provider.request({ method: 'eth_requestAccounts' })) as string[]
+        console.log('activate', 'isConnected', 'isomorphicInitialize', 'then', 'switchChain')
         const chainId = await this.switchChain(desiredChainId, desiredChain);
 
+        console.log('activate', 'isConnected', 'isomorphicInitialize', 'then', 'update')
         await this.actions.update({ chainId, accounts })
       })
       .catch((error) => {
+        console.log('activate', 'isConnected', 'isomorphicInitialize', 'catch', error)
         cancelActivation?.()
         throw error
       })

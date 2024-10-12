@@ -1,4 +1,5 @@
 import type { Web3ReactHooks } from '@web3-react/core'
+import { useEffect } from 'react'
 
 export function Status({
   isActivating,
@@ -9,6 +10,14 @@ export function Status({
   isActive: ReturnType<Web3ReactHooks['useIsActive']>
   error?: Error
 }) {
+
+  useEffect(() => {
+    if (error) {
+      console.error(error)
+    }
+  }, [error])
+
+
   return (
     <div>
       {error ? (

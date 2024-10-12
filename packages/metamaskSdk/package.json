@@ -1,0 +1,33 @@
+{
+  "name": "@web3-react/metamask-sdk",
+  "keywords": [
+    "web3-react",
+    "MetamMask SDK"
+  ],
+  "author": "Edouard Bougon <15703023+EdouardBougon@users.noreply.github.com>",
+  "license": "GPL-3.0-or-later",
+  "repository": "github:Uniswap/web3-react",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "8.2.3",
+  "files": [
+    "dist/*"
+  ],
+  "type": "commonjs",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "tsc",
+    "start": "tsc --watch"
+  },
+  "dependencies": {
+    "@metamask/sdk": "0.28.4",
+    "@web3-react/types": "^8.2.2"
+  },
+  "devDependencies": {
+    "@web3-react/store": "^8.2.2"
+  }
+}

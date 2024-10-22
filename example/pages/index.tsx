@@ -23,13 +23,15 @@ import {
   fortmatic,
   magic,
   portis,
-  torus
+  torus,
+  metaMaskSDK
 } from '../connectors'
 import { Spinner } from '../components/Spinner'
 
 enum ConnectorNames {
   Injected = 'Injected',
   Network = 'Network',
+  MetaMaskSDK = 'MetaMaskSDK',
   WalletConnect = 'WalletConnect',
   WalletLink = 'WalletLink',
   Ledger = 'Ledger',
@@ -46,6 +48,7 @@ enum ConnectorNames {
 const connectorsByName: { [connectorName in ConnectorNames]: any } = {
   [ConnectorNames.Injected]: injected,
   [ConnectorNames.Network]: network,
+  [ConnectorNames.MetaMaskSDK]: metaMaskSDK,
   [ConnectorNames.WalletConnect]: walletconnect,
   [ConnectorNames.WalletLink]: walletlink,
   [ConnectorNames.Ledger]: ledger,
@@ -380,6 +383,20 @@ function App() {
             }}
           >
             Switch Networks
+          </button>
+        )}
+        {connector === connectorsByName[ConnectorNames.MetaMaskSDK] && (
+          <button
+            style={{
+              height: '3rem',
+              borderRadius: '1rem',
+              cursor: 'pointer'
+            }}
+            onClick={() => {
+              ; (connector as any).close()
+            }}
+          >
+            MetaMask SDK
           </button>
         )}
         {connector === connectorsByName[ConnectorNames.WalletConnect] && (

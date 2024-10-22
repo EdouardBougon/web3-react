@@ -11,6 +11,7 @@ import { TorusConnector } from '@web3-react/torus-connector'
 import { TrezorConnector } from '@web3-react/trezor-connector'
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector'
 import { WalletLinkConnector } from '@web3-react/walletlink-connector'
+import { MetaMaskSDKConnector } from '@web3-react/metamasksdk-connector'
 
 const POLLING_INTERVAL = 12000
 const RPC_URLS: { [chainId: number]: string } = {
@@ -23,6 +24,13 @@ export const injected = new InjectedConnector({ supportedChainIds: [1, 3, 4, 5, 
 export const network = new NetworkConnector({
   urls: { 1: RPC_URLS[1], 4: RPC_URLS[4] },
   defaultChainId: 1
+})
+
+export const metaMaskSDK = new MetaMaskSDKConnector({
+  dappMetadata: {
+    appName: 'web3-react example',
+  },
+  readonlyRPCMap: RPC_URLS,
 })
 
 export const walletconnect = new WalletConnectConnector({
